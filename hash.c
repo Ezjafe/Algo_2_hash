@@ -70,9 +70,11 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
 }
 
 bool hash_pertenece(const hash_t *hash, const char *clave) {
+
     size_t pos = hash_f( (char*) clave) % hash->capacidad;
+
     while (hash->tabla[pos].estado != VACIO) {
-        if (strcmp( (char*) hash->tabla[pos].clave, clave) == 0) return true;
+        if (hash->tabla[pos].estado != BORRADO && strcmp( (char*) hash->tabla[pos].clave, clave) == 0) return true;
         if (pos == hash->capacidad) pos = 0;
         else pos++;
     }
@@ -80,14 +82,18 @@ bool hash_pertenece(const hash_t *hash, const char *clave) {
 }
 
 void *hash_obtener(const hash_t *hash, const char *clave) {
+
     size_t pos = hash_f( (char*) clave) % hash->capacidad;
+
     while (hash->tabla[pos].estado != VACIO) {
-        if (strcmp( (char*) hash->tabla[pos].clave, clave) == 0) {
-            return (char*) hash->tabla[pos].valor;
+        if (hash->tabla[pos].estado != BORRADO && strcmp( (char*) hash->tabla[pos].clave, clave) == 0) {
+            return hash->tabla[pos].valor;
         }
+
         if (pos == hash->capacidad) pos = 0;
         else pos++;
     }
+
     return NULL;
 }
 
@@ -100,13 +106,13 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
             if (pos == hash->capacidad) pos = 0;
             else pos++;
         }
+        if (hash->funcion_destruccion) hash->funcion_destruccion(hash->tabla[pos].valor);
         hash->tabla[pos].valor = dato;
         return true;
     }
     
     size_t len = strlen(clave);
     char* copia_clave = malloc(sizeof(char) * len + 1);
-    
     if (!copia_clave) return false;
     strcpy(copia_clave,clave);
 
@@ -128,32 +134,37 @@ size_t hash_cantidad(const hash_t *hash) {
 }
 
 void *hash_borrar(hash_t *hash, const char *clave) {
+
     size_t pos = hash_f( (char*) clave) % hash->capacidad;
+
     while (hash->tabla[pos].estado != VACIO) {
-        if (strcmp( (char*) hash->tabla[pos].clave, clave) == 0) {
+        
+        if (hash->tabla[pos].estado != BORRADO && strcmp( (char*) hash->tabla[pos].clave, clave) == 0) {
+            void * devolver = hash->tabla[pos].valor;
+            if (hash->funcion_destruccion) hash->funcion_destruccion(hash->tabla[pos].valor);
             free(hash->tabla[pos].clave);
-            void* dev = hash->tabla[pos].valor;
-            campo_t campo;
-            //campo.clave = NULL;
-            campo.valor = NULL;
-            campo.estado = BORRADO;
-            hash->tabla[pos] = campo;
+            hash->tabla[pos].clave = NULL;
+            hash->tabla[pos].estado = BORRADO;
             hash->cantidad--;
-            return dev;
+            return devolver;
         }
+
         if (pos == hash->capacidad) pos = 0;
         else pos++;        
     }
+
     return NULL;
 }
 
 void hash_destruir(hash_t *hash) {
+
     for (int i = 0; i < hash->capacidad; i++) {
         if (hash->tabla[i].estado == OCUPADO) {
             if (hash->funcion_destruccion) hash->funcion_destruccion(hash->tabla[i].valor);
             free(hash->tabla[i].clave);
         }
     }
+
     free(hash->tabla);
     free(hash);
 }

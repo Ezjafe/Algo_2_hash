@@ -104,7 +104,6 @@ static void prueba_hash_reemplazar()
     hash_destruir(hash);
 }
 
-
 static void prueba_hash_reemplazar_con_destruir()
 {
     hash_t* hash = hash_crear(free);
@@ -124,7 +123,6 @@ static void prueba_hash_reemplazar_con_destruir()
     print_test("Prueba hash obtener clave2 es valor2a", hash_obtener(hash, clave2) == valor2a);
     print_test("Prueba hash obtener clave2 es valor2a", hash_obtener(hash, clave2) == valor2a);
     print_test("Prueba hash la cantidad de elementos es 2", hash_cantidad(hash) == 2);
-
     print_test("Prueba hash insertar clave1 con otro valor", hash_guardar(hash, clave1, valor1b));
     print_test("Prueba hash obtener clave1 es valor1b", hash_obtener(hash, clave1) == valor1b);
     print_test("Prueba hash obtener clave1 es valor1b", hash_obtener(hash, clave1) == valor1b);
@@ -132,6 +130,7 @@ static void prueba_hash_reemplazar_con_destruir()
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
     print_test("Prueba hash obtener clave2 es valor2b", hash_obtener(hash, clave2) == valor2b);
     print_test("Prueba hash la cantidad de elementos es 2", hash_cantidad(hash) == 2);
+
 
     hash_destruir(hash);
 }
@@ -203,7 +202,6 @@ static void prueba_hash_valor_null()
 
     hash_destruir(hash);
 }
-
 /*
 static void prueba_hash_volumen(size_t largo, bool debug)
 {
