@@ -31,7 +31,6 @@ static void prueba_crear_hash_vacio()
     hash_destruir(hash);
 }
 
-/*
 static void prueba_iterar_hash_vacio()
 {
     hash_t* hash = hash_crear(NULL);
@@ -44,8 +43,6 @@ static void prueba_iterar_hash_vacio()
     hash_iter_destruir(iter);
     hash_destruir(hash);
 }
-*/
-
 
 static void prueba_hash_insertar()
 {
@@ -202,7 +199,7 @@ static void prueba_hash_valor_null()
 
     hash_destruir(hash);
 }
-/*
+
 static void prueba_hash_volumen(size_t largo, bool debug)
 {
     hash_t* hash = hash_crear(NULL);
@@ -211,7 +208,7 @@ static void prueba_hash_volumen(size_t largo, bool debug)
     char (*claves)[largo_clave] = malloc(largo * largo_clave);
 
     unsigned* valores[largo];
-
+    
     bool ok = true;
     for (unsigned i = 0; i < largo; i++) {
         valores[i] = malloc(sizeof(int));
@@ -220,8 +217,10 @@ static void prueba_hash_volumen(size_t largo, bool debug)
         ok = hash_guardar(hash, claves[i], valores[i]);
         if (!ok) break;
     }
+    
 
     if (debug) print_test("Prueba hash almacenar muchos elementos", ok);
+    
     if (debug) print_test("Prueba hash la cantidad de elementos es correcta", hash_cantidad(hash) == largo);
 
     for (size_t i = 0; i < largo; i++) {
@@ -373,7 +372,6 @@ static void prueba_hash_iterar_volumen(size_t largo)
     hash_iter_destruir(iter);
     hash_destruir(hash);
 }
-*/
 /* ******************************************************************
  *                        FUNCIÓN PRINCIPAL
  * *****************************************************************/
@@ -383,16 +381,16 @@ void pruebas_hash_catedra()
 {
     /* Ejecuta todas las pruebas unitarias. */
     prueba_crear_hash_vacio();
-    //prueba_iterar_hash_vacio();
+    prueba_iterar_hash_vacio();
     prueba_hash_insertar();
     prueba_hash_reemplazar();
     prueba_hash_reemplazar_con_destruir();
     prueba_hash_borrar();
     prueba_hash_clave_vacia();
     prueba_hash_valor_null();
-    //prueba_hash_volumen(5000, true);
-    //prueba_hash_iterar();
-    //prueba_hash_iterar_volumen(5000);
+    prueba_hash_volumen(5000, true);
+    prueba_hash_iterar();
+    prueba_hash_iterar_volumen(5000);
 }
 
 void pruebas_volumen_catedra(size_t largo)
