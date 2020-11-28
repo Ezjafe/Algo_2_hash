@@ -189,13 +189,11 @@ void *hash_borrar(hash_t *hash, const char *clave) {
     while (hash->tabla[pos].estado != VACIO) {
 
         if (hash->tabla[pos].estado != BORRADO && strcmp( (char*) hash->tabla[pos].clave, clave) == 0) {
-            void * devolver = hash->tabla[pos].valor;
-            if (hash->funcion_destruccion) hash->funcion_destruccion(hash->tabla[pos].valor);
             free(hash->tabla[pos].clave);
             hash->tabla[pos].clave = NULL;
             hash->tabla[pos].estado = BORRADO;
             hash->cantidad--;
-            return devolver;
+            return hash->tabla[pos].valor;
         }
 
         pos++;        
@@ -213,7 +211,6 @@ void hash_destruir(hash_t *hash) {
             free(hash->tabla[i].clave);
         }
     }
-
     free(hash->tabla);
     free(hash);
 }
