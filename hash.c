@@ -4,8 +4,7 @@
 #include <string.h>
 #include "stdio.h"
 
-// ++
-#define CANT_INICIAL 0
+
 #define CAPACIDAD_INICIAL 20
 #define VALOR_CARGA 0.7
 
@@ -32,8 +31,9 @@ struct hash_iter{
   size_t posicion;
 };
 
-    
+// Source: http://www.cse.yorku.ca/~oz/hash.html    
 unsigned long hash_f(char *str){
+    
     unsigned long hash = 5381;
     int c;
 
@@ -45,6 +45,16 @@ unsigned long hash_f(char *str){
 }
 
 
+void crear_campo(campo_t* tabla, size_t cantidad){
+    for (int i = 0; i < cantidad; i++) {
+        campo_t campo;
+        campo.clave = NULL;
+        campo.valor = NULL;
+        campo.estado = VACIO;
+        tabla[i] = campo;
+    }
+}
+
 hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
     hash_t *hash = malloc(sizeof(hash_t));
     if(!hash) return NULL;
@@ -55,18 +65,11 @@ hash_t *hash_crear(hash_destruir_dato_t destruir_dato){
         return NULL;
     }
 
-    for (int i = 0; i < CAPACIDAD_INICIAL; i++) {
-        campo_t campo;
-        campo.clave = NULL;
-        campo.valor = NULL;
-        campo.estado = VACIO;
-        hash->tabla[i] = campo;
-    }
+    crear_campo(hash->tabla,CAPACIDAD_INICIAL);
 
-    hash->cantidad = CANT_INICIAL;
+    hash->cantidad = 0;
     hash->capacidad = CAPACIDAD_INICIAL;
-    if(destruir_dato) hash->funcion_destruccion = destruir_dato;
-    else hash->funcion_destruccion = NULL;
+    hash->funcion_destruccion = destruir_dato;
     return hash;
 }
 
@@ -98,43 +101,33 @@ void *hash_obtener(const hash_t *hash, const char *clave) {
 }
 
 
-bool redimensionar(hash_t *hash, size_t nuevaCapacidad){
+bool redimensionar(hash_t *hash, size_t nueva_capacidad){
 
-    campo_t* nuevaTabla = malloc(nuevaCapacidad * sizeof(campo_t));
-    if(!nuevaTabla) return false;
+    campo_t* nueva_tabla = malloc(nueva_capacidad * sizeof(campo_t));
+    if(!nueva_tabla) return false;
 
-    for(int i = 0; i < nuevaCapacidad; i++){
-        campo_t campo;
-        campo.clave = NULL;
-        campo.valor = NULL;
-        campo.estado = VACIO;
-        nuevaTabla[i] = campo;
-    }
+    crear_campo(nueva_tabla,nueva_capacidad);
 
     for(int i = 0; i < hash->capacidad; i++){
         if(hash->tabla[i].estado == OCUPADO){
-            size_t pos = hash_f((char*) hash->tabla[i].clave) % nuevaCapacidad;
-            size_t len = strlen(hash->tabla[i].clave);
+            size_t pos = hash_f((char*) hash->tabla[i].clave) % nueva_capacidad;
+            char* copia_clave = strdup(hash->tabla[i].clave);
 
-            char* copia_clave = malloc(sizeof(char) * len + 1);
-            if(!copia_clave) return false;
-            strcpy(copia_clave,hash->tabla[i].clave);
-
-            while (nuevaTabla[pos].estado == OCUPADO){
+            while (nueva_tabla[pos].estado == OCUPADO){
                 pos++;
-                if (pos == nuevaCapacidad) pos = 0;
+                if (pos == nueva_capacidad) pos = 0;
             }
 
-            nuevaTabla[pos].clave = copia_clave;
-            nuevaTabla[pos].valor = hash->tabla[i].valor;
-            nuevaTabla[pos].estado = OCUPADO;
+            nueva_tabla[pos].clave = copia_clave;
+            nueva_tabla[pos].valor = hash->tabla[i].valor;
+            nueva_tabla[pos].estado = OCUPADO;
 
             free(hash->tabla[i].clave);
         }
     }
     free(hash->tabla);
-    hash->tabla = nuevaTabla;
-    hash->capacidad = nuevaCapacidad;
+    hash->tabla = nueva_tabla;
+    hash->capacidad = nueva_capacidad;
 
     return true;
 }
@@ -159,11 +152,8 @@ bool hash_guardar(hash_t *hash, const char *clave, void *dato){
         return true;
 
     }
-    
-    size_t len = strlen(clave);
-    char* copia_clave = malloc(sizeof(char) * len + 1);
-    if (!copia_clave) return false;
-    strcpy(copia_clave,clave);
+
+    char* copia_clave = strdup(clave);
 
     while (hash->tabla[pos].estado == OCUPADO){
         pos++;
